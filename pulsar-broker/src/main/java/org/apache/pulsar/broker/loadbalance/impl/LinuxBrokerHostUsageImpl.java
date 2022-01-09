@@ -64,6 +64,7 @@ public class LinuxBrokerHostUsageImpl implements BrokerHostUsage {
     public LinuxBrokerHostUsageImpl(PulsarService pulsar) {
         this(
             pulsar.getConfiguration().getLoadBalancerHostUsageCheckIntervalMinutes(),
+            // 网卡的最大速度
             pulsar.getConfiguration().getLoadBalancerOverrideBrokerNicSpeedGbps(),
             pulsar.getLoadManagerExecutor()
         );

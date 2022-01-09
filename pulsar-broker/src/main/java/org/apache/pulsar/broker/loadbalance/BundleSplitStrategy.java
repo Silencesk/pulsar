@@ -23,6 +23,8 @@ import org.apache.pulsar.broker.PulsarService;
 
 /**
  * Load Manager component which determines what bundles should be split into two bundles.
+ * bundle切分策略，找出哪些bundles需要做切分
+ * 1、这些bundles超出配置的阈值：topics数、会话数（生产者与消费者的数量）、总的消息流量、吞吐量
  */
 public interface BundleSplitStrategy {
     /**

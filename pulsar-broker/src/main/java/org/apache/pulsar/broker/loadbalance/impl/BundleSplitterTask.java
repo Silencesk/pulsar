@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Determines which bundles should be split based on various thresholds.
+ * 1、按照namespace配置的最大bundles进行切分
+ * 2、
  */
 public class BundleSplitterTask implements BundleSplitStrategy {
     private static final Logger log = LoggerFactory.getLogger(BundleSplitStrategy.class);
@@ -60,23 +62,29 @@ public class BundleSplitterTask implements BundleSplitStrategy {
      */
     @Override
     public Set<String> findBundlesToSplit(final LoadData loadData, final PulsarService pulsar) {
+        // 每次配置先清缓存
         bundleCache.clear();
+        // 取配置
         final ServiceConfiguration conf = pulsar.getConfiguration();
         int maxBundleCount = conf.getLoadBalancerNamespaceMaximumBundles();
         long maxBundleTopics = conf.getLoadBalancerNamespaceBundleMaxTopics();
         long maxBundleSessions = conf.getLoadBalancerNamespaceBundleMaxSessions();
         long maxBundleMsgRate = conf.getLoadBalancerNamespaceBundleMaxMsgRate();
+        // 吞吐，带宽，代表消息大小（流量）
         long maxBundleBandwidth = conf.getLoadBalancerNamespaceBundleMaxBandwidthMbytes() * LoadManagerShared.MIBI;
         loadData.getBrokerData().forEach((broker, brokerData) -> {
             LocalBrokerData localData = brokerData.getLocalData();
             for (final Map.Entry<String, NamespaceBundleStats> entry : localData.getLastStats().entrySet()) {
                 final String bundle = entry.getKey();
+                // bundle统计数据
                 final NamespaceBundleStats stats = entry.getValue();
                 if (stats.topics < 2) {
                     log.info("The count of topics on the bundle {} is less than 2，skip split!", bundle);
                     continue;
                 }
+                // 消息速率
                 double totalMessageRate = 0;
+                // 消息带宽
                 double totalMessageThroughput = 0;
                 // Attempt to consider long-term message data, otherwise effectively ignore.
                 if (loadData.getBundleData().containsKey(bundle)) {
@@ -84,6 +92,7 @@ public class BundleSplitterTask implements BundleSplitStrategy {
                     totalMessageRate = longTermData.totalMsgRate();
                     totalMessageThroughput = longTermData.totalMsgThroughput();
                 }
+                // 长期数据大于阈值，才有必要调整
                 if (stats.topics > maxBundleTopics || stats.consumerCount + stats.producerCount > maxBundleSessions
                         || totalMessageRate > maxBundleMsgRate || totalMessageThroughput > maxBundleBandwidth) {
                     final String namespace = LoadManagerShared.getNamespaceNameFromBundleName(bundle);

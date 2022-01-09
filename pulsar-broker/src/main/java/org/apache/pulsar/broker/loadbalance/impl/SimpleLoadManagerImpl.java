@@ -169,6 +169,9 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
     public static final String LOADBALANCER_STRATEGY_RAND = "weightedRandomSelection";
     public static final String LOADBALANCER_STRATEGY_LEAST_MSG = "leastMsgPerSecond";
 
+    /**
+     * 后台更新负载排名的定时任务
+     */
     private final ScheduledExecutorService scheduler;
 
     private static final long MBytes = 1024 * 1024;
@@ -470,6 +473,9 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         }
     }
 
+    /**
+     * 更新实时资源配额
+     */
     private synchronized void updateRealtimeResourceQuota() {
         long memObjectGroupSize = 500;
         if (!currentLoadReports.isEmpty()) {
@@ -627,6 +633,9 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
      * If we fail to collect the Load Reports OR fail to process them for the first time, it means the leader does not
      * have enough information to make a decision so we set it to ready when we collect and process the load reports
      * successfully the first time.
+     */
+    /**
+     * 执行负载排名
      */
     private synchronized void doLoadRanking() {
         ResourceUnitRanking.setCpuUsageByMsgRate(this.realtimeCpuLoadFactor);
@@ -843,6 +852,12 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         return selectedRU;
     }
 
+    /**
+     * 获取最终候选者
+     * @param serviceUnit
+     * @param availableBrokers
+     * @return
+     */
     private Multimap<Long, ResourceUnit> getFinalCandidates(ServiceUnitId serviceUnit,
             Map<Long, Set<ResourceUnit>> availableBrokers) {
         synchronized (brokerCandidateCache) {
@@ -966,6 +981,9 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         }
     }
 
+    /**
+     * 更新负载排名
+     */
     private void updateRanking() {
         try {
             synchronized (currentLoadReports) {
@@ -1287,6 +1305,9 @@ public class SimpleLoadManagerImpl implements LoadManager, Consumer<Notification
         }
     }
 
+    /**
+     * 执行负载去除
+     */
     @Override
     public void doLoadShedding() {
         long overloadThreshold = this.getLoadBalancerBrokerOverloadedThresholdPercentage();

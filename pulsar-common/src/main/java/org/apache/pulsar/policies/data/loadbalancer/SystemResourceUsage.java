@@ -20,6 +20,8 @@ package org.apache.pulsar.policies.data.loadbalancer;
 
 /**
  * This class represents a object which reflects system resource usage per resource and the upper limit on the resource.
+ * 系统资源使用情况
+ * CPU、内存、网卡带宽入、网卡带宽出
  */
 public class SystemResourceUsage {
 

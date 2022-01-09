@@ -94,12 +94,23 @@ public class FutureUtil {
         cancellationHandler.attachToFuture(future);
     }
 
+    /**
+     * 将异常封装成completableFuture
+     * @param t
+     * @param <T>
+     * @return
+     */
     public static <T> CompletableFuture<T> failedFuture(Throwable t) {
         CompletableFuture<T> future = new CompletableFuture<>();
         future.completeExceptionally(t);
         return future;
     }
 
+    /**
+     * 不包装完成时的异常
+     * @param t
+     * @return
+     */
     public static Throwable unwrapCompletionException(Throwable t) {
         if (t instanceof CompletionException) {
             return unwrapCompletionException(t.getCause());
@@ -136,6 +147,7 @@ public class FutureUtil {
     public static <T> CompletableFuture<T> addTimeoutHandling(CompletableFuture<T> future, Duration timeout,
                                                ScheduledExecutorService executor,
                                                Supplier<Throwable> exceptionSupplier) {
+        // 用延时任务运行监测是否超时
         ScheduledFuture<?> scheduledFuture = executor.schedule(() -> {
             if (!future.isDone()) {
                 future.completeExceptionally(exceptionSupplier.get());
@@ -160,6 +172,9 @@ public class FutureUtil {
         return new LowOverheadTimeoutException(message, sourceClass, sourceMethod);
     }
 
+    /**
+     * 异常的优化方法，手动设置线程堆栈，减少堆栈内容
+     */
     private static class LowOverheadTimeoutException extends TimeoutException {
         private static final long serialVersionUID = 1L;
 

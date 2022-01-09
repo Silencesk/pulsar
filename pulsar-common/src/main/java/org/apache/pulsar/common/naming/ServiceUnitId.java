@@ -20,6 +20,7 @@ package org.apache.pulsar.common.naming;
 
 /**
  * Basic interface for service unit's identification.
+ * 服务单元ID标识的基本接口
  */
 public interface ServiceUnitId {
 

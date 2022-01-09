@@ -30,10 +30,20 @@ import org.apache.pulsar.policies.data.loadbalancer.NamespaceBundleStats;
 @Data
 @NoArgsConstructor
 public class TimeAverageBrokerData {
+    /**
+     * 消息吞吐量（出入）
+     */
     private double shortTermMsgThroughputIn;
     private double shortTermMsgThroughputOut;
+    /**
+     * 消息流量（出入）
+     */
     private double shortTermMsgRateIn;
     private double shortTermMsgRateOut;
+
+    /**
+     * 长期数据
+     */
     private double longTermMsgThroughputIn;
     private double longTermMsgThroughputOut;
     private double longTermMsgRateIn;

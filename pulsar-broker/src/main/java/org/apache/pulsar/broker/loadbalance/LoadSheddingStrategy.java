@@ -23,11 +23,13 @@ import org.apache.pulsar.broker.ServiceConfiguration;
 
 /**
  * Load management component which determines the criteria for unloading bundles.
+ * 负载切分的策略：也就是达到切分条件（策略），如何切分（策略）
  */
 public interface LoadSheddingStrategy {
 
     /**
      * Recommend that all of the returned bundles be unloaded.
+     * 查找需要卸载的bundles
      *
      * @param loadData
      *            The load data to used to make the unloading decision.

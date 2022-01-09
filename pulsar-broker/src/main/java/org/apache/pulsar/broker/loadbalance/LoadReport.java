@@ -24,6 +24,10 @@ import java.util.Map;
     LoadReport is abstraction which represents the Load of ResourceUnit, it mandates that concrete classes
     implement interfaces that expose its ResourceUnit, mapping of ServiceUnit to ServiceRequest.
  */
+
+/**
+ * 负载报告
+ */
 public interface LoadReport {
 
     Map<ServiceUnit, ServiceRequest> getServiceUnitRequests();

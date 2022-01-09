@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,10 +19,13 @@
 package org.apache.pulsar.broker.loadbalance.impl;
 
 import static org.apache.pulsar.broker.namespace.NamespaceService.HEARTBEAT_NAMESPACE_PATTERN;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,35 +39,49 @@ import org.apache.pulsar.policies.data.loadbalancer.LocalBrokerData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 【Broker 过载阈值】切分
+ * https://pulsar.apache.org/docs/zh-CN/next/administration-load-balance/
+ */
 public class ThresholdShedder implements LoadSheddingStrategy {
     private static final Logger log = LoggerFactory.getLogger(ThresholdShedder.class);
 
     private final Multimap<String, String> selectedBundlesCache = ArrayListMultimap.create();
 
+    /**
+     * 额外阈值百分比的填补
+     */
     private static final double ADDITIONAL_THRESHOLD_PERCENT_MARGIN = 0.05;
 
     private static final double MB = 1024 * 1024;
 
+    /**
+     * broker的平均资源使用情况map broker名称->平均资源使用情况指标
+     */
     private final Map<String, Double> brokerAvgResourceUsage = new HashMap<>();
 
     @Override
     public Multimap<String, String> findBundlesForUnloading(final LoadData loadData, final ServiceConfiguration conf) {
         selectedBundlesCache.clear();
         final double threshold = conf.getLoadBalancerBrokerThresholdShedderPercentage() / 100.0;
+        // 最近卸载的bundles
         final Map<String, Long> recentlyUnloadedBundles = loadData.getRecentlyUnloadedBundles();
+        // 负载均衡bundle卸载的最小吞吐阈值
         final double minThroughputThreshold = conf.getLoadBalancerBundleUnloadMinThroughputThreshold() * MB;
-
+        // 所有broker的使用情况的平均值
         final double avgUsage = getBrokerAvgUsage(loadData, conf.getLoadBalancerHistoryResourcePercentage(), conf);
 
+        // 平均使用情况为0，不需要卸载
         if (avgUsage == 0) {
             log.warn("average max resource usage is 0");
             return selectedBundlesCache;
         }
 
+
         loadData.getBrokerData().forEach((broker, brokerData) -> {
             final LocalBrokerData localData = brokerData.getLocalData();
             final double currentUsage = brokerAvgResourceUsage.getOrDefault(broker, 0.0);
-
+            // 当前broker的使用情况大于平均值+阈值，则需要调整
             if (currentUsage < avgUsage + threshold) {
                 if (log.isDebugEnabled()) {
                     log.debug("[{}] broker is not overloaded, ignoring at this point", broker);
@@ -72,11 +89,13 @@ public class ThresholdShedder implements LoadSheddingStrategy {
                 return;
             }
 
+            // 需要卸载流量的百分比，算出最小要卸载的吞吐量
             double percentOfTrafficToOffload =
                     currentUsage - avgUsage - threshold + ADDITIONAL_THRESHOLD_PERCENT_MARGIN;
             double brokerCurrentThroughput = localData.getMsgThroughputIn() + localData.getMsgThroughputOut();
             double minimumThroughputToOffload = brokerCurrentThroughput * percentOfTrafficToOffload;
 
+            // 如果卸载后最小流量比配置的bundle卸载最小阈值还小，则不进行处理
             if (minimumThroughputToOffload < minThroughputThreshold) {
                 if (log.isDebugEnabled()) {
                     log.info("[{}] broker is planning to shed throughput {} MByte/s less than "
@@ -95,20 +114,26 @@ public class ThresholdShedder implements LoadSheddingStrategy {
             MutableDouble trafficMarkedToOffload = new MutableDouble(0);
             MutableBoolean atLeastOneBundleSelected = new MutableBoolean(false);
 
+            /**
+             * 使用Pair.of减少对象创建；可理解为一个通用对象；且比使用Map.Entry代码更简洁
+             */
             if (localData.getBundles().size() > 1) {
                 loadData.getBundleData().entrySet().stream()
-                    .filter(e -> !HEARTBEAT_NAMESPACE_PATTERN.matcher(e.getKey()).matches())
-                    .map((e) -> {
-                        String bundle = e.getKey();
-                        BundleData bundleData = e.getValue();
-                        TimeAverageMessageData shortTermData = bundleData.getShortTermData();
-                        double throughput = shortTermData.getMsgThroughputIn() + shortTermData.getMsgThroughputOut();
-                        return Pair.of(bundle, throughput);
-                }).filter(e ->
+                        // 正则匹配
+                        .filter(e -> !HEARTBEAT_NAMESPACE_PATTERN.matcher(e.getKey()).matches())
+                        // 映射为bundle与吞吐的kv对
+                        .map((e) -> {
+                            String bundle = e.getKey();
+                            BundleData bundleData = e.getValue();
+                            TimeAverageMessageData shortTermData = bundleData.getShortTermData();
+                            double throughput = shortTermData.getMsgThroughputIn() + shortTermData.getMsgThroughputOut();
+                            return Pair.of(bundle, throughput);
+                        }).filter(e ->
                         !recentlyUnloadedBundles.containsKey(e.getLeft())
                 ).filter(e ->
                         localData.getBundles().contains(e.getLeft())
                 ).sorted((e1, e2) ->
+                        // 考虑用这些静态方法
                         Double.compare(e2.getRight(), e1.getRight())
                 ).forEach(e -> {
                     if (trafficMarkedToOffload.doubleValue() < minimumThroughputToOffload

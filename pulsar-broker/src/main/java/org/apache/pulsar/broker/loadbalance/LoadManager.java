@@ -37,8 +37,11 @@ import org.slf4j.LoggerFactory;
  * namespace/ServiceUnit placement on machines/ResourceUnit. Each Concrete Load Manager will use different algorithms to
  * generate this mapping.
  *
+ * 负载管理器
+ *
  * Concrete Load Manager is also return the least loaded broker that should own the new namespace.
  */
+
 public interface LoadManager {
     Logger LOG = LoggerFactory.getLogger(LoadManager.class);
 
@@ -68,6 +71,7 @@ public interface LoadManager {
 
     /**
      * Publish the current load report on ZK.
+     * 发布当前负载报告到zk
      */
     void writeLoadReportOnZookeeper() throws Exception;
 
@@ -81,6 +85,7 @@ public interface LoadManager {
 
     /**
      * Update namespace bundle resource quota on ZK.
+     * 更新bundle资源配额
      */
     void writeResourceQuotasToZooKeeper() throws Exception;
 
@@ -125,6 +130,11 @@ public interface LoadManager {
      */
     void initialize(PulsarService pulsar);
 
+    /**
+     * 接口类中增加create方法，可以减少用一个工厂类处理
+     * @param pulsar
+     * @return
+     */
     static LoadManager create(final PulsarService pulsar) {
         try {
             final ServiceConfiguration conf = pulsar.getConfiguration();
@@ -144,6 +154,7 @@ public interface LoadManager {
             LOG.warn("Error when trying to create load manager: ", e);
         }
         // If we failed to create a load manager, default to SimpleLoadManagerImpl.
+        // 降级为简单负载管理器的实现
         return new SimpleLoadManagerImpl(pulsar);
     }
 

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 
 /**
+ * namespace的bundle统计数据
  */
 @EqualsAndHashCode
 public class NamespaceBundleStats implements Comparable<NamespaceBundleStats>, Serializable {

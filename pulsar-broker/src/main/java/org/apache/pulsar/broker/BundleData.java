@@ -22,19 +22,29 @@ import org.apache.pulsar.policies.data.loadbalancer.NamespaceBundleStats;
 
 /**
  * Data class comprising the short term and long term historical data for this bundle.
+ * bundle的短期和长期历史数据
  */
 public class BundleData {
     // Short term data for this bundle. The time frame of this data is
     // determined by the number of short term samples
     // and the bundle update period.
+    /**
+     * 短期内按时间平均的消息数据
+     */
     private TimeAverageMessageData shortTermData;
 
     // Long term data for this bundle. The time frame of this data is determined
     // by the number of long term samples
     // and the bundle update period.
+    /**
+     * 长期内按时间平均的消息数据
+     */
     private TimeAverageMessageData longTermData;
 
     // number of topics present under this bundle
+    /**
+     * bundle下的topic数
+     */
     private int topics;
 
     // For JSON only.

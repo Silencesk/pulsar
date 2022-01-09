@@ -88,6 +88,9 @@ import org.apache.pulsar.policies.data.loadbalancer.SystemResourceUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 模块化的负载管理器实现
+ */
 public class ModularLoadManagerImpl implements ModularLoadManager, Consumer<Notification> {
     private static final Logger log = LoggerFactory.getLogger(ModularLoadManagerImpl.class);
 

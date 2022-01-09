@@ -19,6 +19,7 @@
 package org.apache.pulsar.broker.loadbalance;
 
 /**
+ * 负载排名
  */
 public interface LoadRanker {
     long getRank(ResourceDescription rd);

@@ -22,6 +22,9 @@ import com.google.common.base.MoreObjects;
 import org.apache.pulsar.broker.loadbalance.ResourceDescription;
 import org.apache.pulsar.broker.loadbalance.ResourceUnit;
 
+/**
+ * 简单资源单元
+ */
 public class SimpleResourceUnit implements ResourceUnit {
 
     private String resourceId;

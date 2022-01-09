@@ -26,6 +26,7 @@ public class PulsarServiceUnit extends ServiceUnit {
     // service unit id or namespace name
     private final String serviceUnitId;
     // describes the characteristics of service unit i.e. namespace
+    // 描述的服务单元统计数据
     private final PulsarServiceRequest srvRequest;
     private ResourceDescription resrcRequired;
 

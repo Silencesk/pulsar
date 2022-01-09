@@ -33,8 +33,14 @@ import java.util.TreeMap;
  */
 public class Metrics {
 
+    /**
+     * 指标值
+     */
     final Map<String, Object> metrics;
 
+    /**
+     * 维度，不可变，也不可修改
+     */
     final Map<String, String> dimensions;
 
     public Metrics() {

@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class contains code which in shared between the two load manager implementations.
+ * 共有内容的负载管理器
  */
 public class LoadManagerShared {
     public static final Logger LOG = LoggerFactory.getLogger(LoadManagerShared.class);

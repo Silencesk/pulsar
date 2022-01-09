@@ -28,11 +28,18 @@ import org.apache.pulsar.policies.data.loadbalancer.LocalBrokerData;
  * The local broker data which is written to ZooKeeper by each individual broker (LocalBrokerData). - The time average
  * bundle data which is written to ZooKeeper by the leader broker (TimeAverageBrokerData). - The preallocated bundles
  * which are not written to ZooKeeper but are maintained by the leader broker (Map<String, BundleData>).
+ *
  */
 @Data
 public class BrokerData {
+    /**
+     * 本机broker负载数据
+     */
     private LocalBrokerData localData;
     private TimeAverageBrokerData timeAverageData;
+    /**
+     * 预分配的bundle指标数据
+     */
     private Map<String, BundleData> preallocatedBundleData;
 
     /**

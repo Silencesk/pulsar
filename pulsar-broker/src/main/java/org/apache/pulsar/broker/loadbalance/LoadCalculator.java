@@ -21,8 +21,14 @@ package org.apache.pulsar.broker.loadbalance;
 /**
  * This interface class defines how we calculator the
  * resource requirement per service unit based on the ServiceRequest.
+ * 负载计算
  */
 public interface LoadCalculator {
+    /**
+     * 资源描述
+     * @param srvRequest
+     * @return
+     */
     ResourceDescription getResourceDescription(ServiceRequest srvRequest);
 
     void recalibrateResourceUsagePerServiceUnit(LoadReport loadReport);

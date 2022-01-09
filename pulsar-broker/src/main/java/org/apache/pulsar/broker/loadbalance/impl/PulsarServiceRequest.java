@@ -20,6 +20,11 @@ package org.apache.pulsar.broker.loadbalance.impl;
 
 import org.apache.pulsar.broker.loadbalance.ServiceRequest;
 
+/**
+ * 服务请求
+ * 1、消息（出｜入）（速率-rate｜吞吐-Throughput）；rate前者为消息数量、后者为消息大小
+ * 2、消息背压、生产者、订阅者、active订阅者、queue、topic数
+ */
 public class PulsarServiceRequest extends ServiceRequest {
     private double msgRateIn;
     private double msgThroughputIn;

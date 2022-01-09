@@ -33,6 +33,7 @@ import org.apache.pulsar.policies.data.loadbalancer.LocalBrokerData;
 
 /**
  * Wrapper class allowing classes of instance ModularLoadManager to be compatible with the interface LoadManager.
+ * 对原有负载均衡管理器的适配
  */
 public class ModularLoadManagerWrapper implements LoadManager {
     private ModularLoadManager loadManager;
