@@ -1021,6 +1021,12 @@ public abstract class NamespacesBase extends AdminResource {
         }
     }
 
+    /**
+     * 内部卸载bundle逻辑
+     * @param asyncResponse
+     * @param bundleRange
+     * @param authoritative
+     */
     @SuppressWarnings("deprecation")
     public void internalUnloadNamespaceBundle(AsyncResponse asyncResponse, String bundleRange, boolean authoritative) {
         validateSuperUserAccess();

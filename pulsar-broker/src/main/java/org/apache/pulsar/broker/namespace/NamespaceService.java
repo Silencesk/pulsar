@@ -703,6 +703,11 @@ public class NamespaceService implements AutoCloseable {
         return Optional.of(lookupAddress);
     }
 
+    /**
+     * 卸载bundle
+     * @param bundle
+     * @return
+     */
     public CompletableFuture<Void> unloadNamespaceBundle(NamespaceBundle bundle) {
         // unload namespace bundle
         return unloadNamespaceBundle(bundle, 5, TimeUnit.MINUTES);
@@ -710,10 +715,12 @@ public class NamespaceService implements AutoCloseable {
 
     public CompletableFuture<Void> unloadNamespaceBundle(NamespaceBundle bundle, long timeout, TimeUnit timeoutUnit) {
         // unload namespace bundle
+        // 获取到ownedBundle
         OwnedBundle ob = ownershipCache.getOwnedBundle(bundle);
         if (ob == null) {
             return FutureUtil.failedFuture(new IllegalStateException("Bundle " + bundle + " is not currently owned"));
         } else {
+            // 执行卸载请求
             return ob.handleUnloadRequest(pulsar, timeout, timeoutUnit);
         }
     }

@@ -1527,6 +1527,14 @@ public class NamespacesImpl extends BaseResource implements Namespaces {
         }
     }
 
+    /**
+     * 异步卸载namespaceBundle
+     * @param namespace
+     * @param bundle
+     *           range of bundle to unload
+     *
+     * @return
+     */
     @Override
     public CompletableFuture<Void> unloadNamespaceBundleAsync(String namespace, String bundle) {
         NamespaceName ns = NamespaceName.get(namespace);

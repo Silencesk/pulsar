@@ -1750,6 +1750,9 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         }
     }
 
+    /**
+     * 卸载服务单元
+     */
     public CompletableFuture<Integer> unloadServiceUnit(NamespaceBundle serviceUnit,
             boolean closeWithoutWaitingClientDisconnect, long timeout, TimeUnit unit) {
         CompletableFuture<Integer> future = unloadServiceUnit(serviceUnit, closeWithoutWaitingClientDisconnect);
@@ -2010,6 +2013,7 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         registerConfigurationListener("maxConcurrentTopicLoadRequest",
                 (maxConcurrentTopicLoadRequest) -> topicLoadRequestSemaphore.set(
                         new Semaphore((int) maxConcurrentTopicLoadRequest, false)));
+        // 注册load管理器
         registerConfigurationListener("loadManagerClassName", className -> {
             try {
                 final LoadManager newLoadManager = LoadManager.create(pulsar);

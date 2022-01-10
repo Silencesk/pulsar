@@ -433,6 +433,8 @@ public class OwnershipCache {
     /**
      * Update bundle state in a local cache.
      *
+     * 更新本地缓存的bundle状态
+     *
      * @param bundle
      * @throws Exception
      */

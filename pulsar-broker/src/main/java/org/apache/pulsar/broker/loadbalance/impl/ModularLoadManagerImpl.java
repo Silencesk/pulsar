@@ -983,6 +983,7 @@ public class ModularLoadManagerImpl implements ModularLoadManager, Consumer<Noti
 
     /**
      * As the leader broker, write bundle data aggregated from all brokers to metadata store.
+     * 由主节点写所有节点聚合后的bundle数据到元数据仓库
      */
     @Override
     public void writeBundleDataOnZooKeeper() {

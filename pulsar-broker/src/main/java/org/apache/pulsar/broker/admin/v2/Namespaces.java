@@ -504,6 +504,14 @@ public class Namespaces extends NamespacesBase {
         }
     }
 
+    /**
+     * 执行namespace下的bundle卸载
+     * @param asyncResponse
+     * @param tenant
+     * @param namespace
+     * @param bundleRange
+     * @param authoritative
+     */
     @PUT
     @Path("/{tenant}/{namespace}/{bundle}/unload")
     @ApiOperation(value = "Unload a namespace bundle")

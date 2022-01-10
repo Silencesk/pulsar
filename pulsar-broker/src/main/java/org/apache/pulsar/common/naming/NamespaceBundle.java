@@ -27,6 +27,9 @@ import com.google.common.collect.Range;
 
 public class NamespaceBundle implements ServiceUnitId, Comparable<NamespaceBundle> {
     private final NamespaceName nsname;
+    /**
+     * hash环的范围
+     */
     private final Range<Long> keyRange;
     private final NamespaceBundleFactory factory;
     // Issue#596: remove this once we remove broker persistent/non-persistent mode configuration

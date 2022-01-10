@@ -1204,6 +1204,7 @@ public class PersistentTopic extends AbstractTopic
 
     /**
      * Close this topic - close all producers and subscriptions associated with this topic.
+     * 关闭topic
      *
      * @param closeWithoutWaitingClientDisconnect don't wait for client disconnect and forcefully close managed-ledger
      * @return Completable future indicating completion of close operation

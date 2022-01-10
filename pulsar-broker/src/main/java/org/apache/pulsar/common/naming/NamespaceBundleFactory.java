@@ -228,6 +228,12 @@ public class NamespaceBundleFactory {
         return new NamespaceBundle(nsname, hashRange, this);
     }
 
+    /**
+     * 根据namespace与bundleRange获取到NameSpaceBundle
+     * @param namespace
+     * @param bundleRange
+     * @return
+     */
     public NamespaceBundle getBundle(String namespace, String bundleRange) {
         checkArgument(bundleRange.contains("_"), "Invalid bundle range");
         String[] boundaries = bundleRange.split("_");
