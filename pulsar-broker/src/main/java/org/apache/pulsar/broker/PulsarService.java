@@ -80,6 +80,7 @@ import org.apache.bookkeeper.mledger.offload.OffloadersCache;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.pulsar.PulsarVersion;
 import org.apache.pulsar.ZookeeperSessionExpiredHandlers;
 import org.apache.pulsar.broker.admin.AdminResource;
 import org.apache.pulsar.broker.authentication.AuthenticationService;
@@ -269,6 +270,9 @@ public class PulsarService implements AutoCloseable {
 
     private volatile State state;
 
+    /**
+     * 信号量锁，优雅关机的锁
+     */
     private final ReentrantLock mutex = new ReentrantLock();
     private final Condition isClosedCondition = mutex.newCondition();
     private volatile CompletableFuture<Void> closeFuture;
@@ -301,6 +305,7 @@ public class PulsarService implements AutoCloseable {
         this.bindAddress = ServiceConfigurationUtils.getDefaultOrConfiguredAddress(config.getBindAddress());
         this.brokerVersion = PulsarVersion.getVersion();
         this.config = config;
+        // shutdownHook
         this.shutdownService = new MessagingServiceShutdownHook(this, processTerminator);
         this.loadManagerExecutor = Executors
                 .newSingleThreadScheduledExecutor(new DefaultThreadFactory("pulsar-load-manager"));
@@ -353,6 +358,7 @@ public class PulsarService implements AutoCloseable {
 
     /**
      * Close the current pulsar service. All resources are released.
+     * 异步关闭逻辑：变更状态，根据相关服务启动顺序来执行反向关闭，
      */
     public CompletableFuture<Void> closeAsync() {
         mutex.lock();
@@ -390,6 +396,7 @@ public class PulsarService implements AutoCloseable {
                 brokerAdditionalServlets = null;
             }
 
+            // 优雅关机线程池
             GracefulExecutorServicesShutdown executorServicesShutdown =
                     GracefulExecutorServicesShutdown
                             .initiate()
@@ -400,6 +407,7 @@ public class PulsarService implements AutoCloseable {
                                                     .getBrokerShutdownTimeoutMs())));
 
             // shutdown loadmanager before shutting down the broker
+            // 线程池关闭
             executorServicesShutdown.shutdown(loadManagerExecutor);
             LoadManager loadManager = this.loadManager.get();
             if (loadManager != null) {
@@ -504,6 +512,7 @@ public class PulsarService implements AutoCloseable {
             // add timeout handling for closing executors
             asyncCloseFutures.add(executorServicesShutdown.handle());
 
+            // 将所有异步关闭的逻辑合并成一个closeFuture，从而完成同步操作
             closeFuture = addTimeoutHandling(FutureUtil.waitForAllAndSupportCancel(asyncCloseFutures));
             closeFuture.handle((v, t) -> {
                 if (t == null) {

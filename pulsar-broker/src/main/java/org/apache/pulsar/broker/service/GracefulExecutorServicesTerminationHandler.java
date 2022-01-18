@@ -52,6 +52,7 @@ class GracefulExecutorServicesTerminationHandler {
         this.executors = Collections.unmodifiableList(new ArrayList<>(executorServices));
         this.future = new CompletableFuture<>();
         log.info("Starting termination handler for {} executors.", executors.size());
+        // 线程池状态的校验
         for (ExecutorService executor : executors) {
             if (!executor.isShutdown()) {
                 throw new IllegalStateException(
@@ -63,7 +64,9 @@ class GracefulExecutorServicesTerminationHandler {
             markShutdownCompleted();
         } else {
             if (shutdownTimeout.isZero() || shutdownTimeout.isNegative()) {
+                // 关闭线程池
                 terminateExecutors();
+                // 标记关机结束
                 markShutdownCompleted();
             } else {
                 Thread shutdownWaitingThread = new Thread(this::awaitShutdown, getClass().getSimpleName());
@@ -140,6 +143,7 @@ class GracefulExecutorServicesTerminationHandler {
                 executor.shutdownNow();
             }
         }
+        // 输出强制shutdown时仍存在的runnable
         if (!Thread.currentThread().isInterrupted() && !awaitTermination(terminationTimeout)) {
             for (ExecutorService executor : executors) {
                 if (!executor.isTerminated()) {

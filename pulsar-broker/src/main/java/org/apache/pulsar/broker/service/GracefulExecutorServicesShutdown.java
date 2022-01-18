@@ -39,6 +39,10 @@ import java.util.concurrent.TimeUnit;
  * timeout value will be used for waiting for termination.
  * The default value for termination timeout is 10% of the shutdown timeout.
  */
+
+/**
+ * 线程池关闭工具类
+ */
 public class GracefulExecutorServicesShutdown {
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(15);
     private static final Double DEFAULT_TERMINATION_TIMEOUT_RATIO = 0.1d;

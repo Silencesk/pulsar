@@ -32,11 +32,15 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 消息服务关机hook
+ */
 public class MessagingServiceShutdownHook extends Thread implements ShutdownService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessagingServiceShutdownHook.class);
 
     private PulsarService service = null;
+    // 终止处理逻辑
     private final Consumer<Integer> processTerminator;
 
     public MessagingServiceShutdownHook(PulsarService service, Consumer<Integer> processTerminator) {
@@ -51,6 +55,7 @@ public class MessagingServiceShutdownHook extends Thread implements ShutdownServ
                     + service.getSafeWebServiceAddress() + ", broker url=" + service.getSafeBrokerServiceUrl());
         }
 
+        // 关机线程池，能生成自动关闭调用逻辑的代码，可在现有生产消费实例逻辑中使用
         @Cleanup("shutdownNow")
         ExecutorService executor = Executors.newSingleThreadExecutor(new DefaultThreadFactory("shutdown-thread"));
 
@@ -71,6 +76,7 @@ public class MessagingServiceShutdownHook extends Thread implements ShutdownServ
                 }
             });
 
+            // 同步关闭等待，通过线程池来关闭brokerService，关闭的超时等待机制；优雅关机
             future.get(service.getConfiguration().getBrokerShutdownTimeoutMs(), TimeUnit.MILLISECONDS);
 
             LOG.info("Completed graceful shutdown. Exiting");
