@@ -116,6 +116,8 @@ public class ThresholdShedder implements LoadSheddingStrategy {
 
             /**
              * 使用Pair.of减少对象创建；可理解为一个通用对象；且比使用Map.Entry代码更简洁
+             * 1、将所有broker的数据按照bundle的吞吐负载进行降序排；
+             * 2、根据上面计算出来的至少需要的卸载流量，优先卸载最大流量bundle，直到卸载流量达到至少需要的卸载流量才停止
              */
             if (localData.getBundles().size() > 1) {
                 loadData.getBundleData().entrySet().stream()
@@ -133,7 +135,7 @@ public class ThresholdShedder implements LoadSheddingStrategy {
                 ).filter(e ->
                         localData.getBundles().contains(e.getLeft())
                 ).sorted((e1, e2) ->
-                        // 考虑用这些静态方法
+                        // 考虑用这些静态方法，倒序排
                         Double.compare(e2.getRight(), e1.getRight())
                 ).forEach(e -> {
                     if (trafficMarkedToOffload.doubleValue() < minimumThroughputToOffload
